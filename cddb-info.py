@@ -7,7 +7,7 @@
 
 # Release version 1.0
 
-import DiscID, CDDB, sys
+import DiscID, CDDB, sys, os
 
 # Change this to '/dev/vol/alias/cdrom0' if you're using the volume
 # manager on Solaris -- or any other cdrom-like device on any platform.
@@ -17,7 +17,10 @@ dev = '/dev/cdrom'
 if len(sys.argv) >= 2:
     dev = sys.argv[1]
 
-fd = open(dev)
+# Thanks to John Watson for pointing out that Linux wants audio-CD-
+# using programs to open in O_RDONLY | O_NONBLOCK mode.
+
+fd = os.fdopen(os.open(dev, os.O_RDONLY | os.O_NONBLOCK))
 
 print "Getting disc id in CDDB format...",
 
