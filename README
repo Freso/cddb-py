@@ -1,7 +1,7 @@
-README for CDDB.py and DiscID.py, version 0.5
+README for CDDB.py and DiscID.py, version 1.0
 
-Copyright (C) 1999 Ben Gertzfield <che@debian.org>
---------------------------------------------------
+Copyright (C) 1999, 2000 Ben Gertzfield <che@debian.org>
+--------------------------------------------------------
 
 The dynamic duo of CDDB.py and DiscID.py, along with their side-kick C
 module cdrommodule.so, provide an easy way for Python programs to
@@ -9,10 +9,27 @@ fetch information on audio CDs from CDDB (http://www.cddb.com/) -- a
 very large online database of track listings and other information on
 audio CDs.
 
-To build:
+To build on Linux, FreeBSD, or Solaris:
 
 % make -f Makefile.pre.in boot
 % make
+
+Then copy CDDB.py, DiscID,py, and unix/cdrommodule.so to your local
+Python packages directory (usually /usr/lib/python1.5/site-packages).
+
+Alternatively, you can use install Distutils (to be included in Python
+1.6) from http://www.python.org/sigs/distutils-sig/download.html and
+simply run (as root):
+
+# python setup.py install
+
+This has known to not work correctly in the past (Distutils is very
+unstable), so your mileage may vary!
+
+There is a win32 directory included for Windows users; simply copy the
+cdrom.py and mci.dll files by hand in that directory to your Python
+module directory, or rebuild mci.dll using the mci.dsp project
+file. Don't forget to also copy DiscID.py and CDDB.py as well!
 
 The distribution is split up into three parts: 
 
@@ -25,13 +42,8 @@ The distribution is split up into three parts:
 Also included is cddb-info.py, a quick example of how to use CDDB.py
 and DiscID.py together to fetch the track info of an audio CD.
 
-Note that the given linux-cdrommodule.c will only work (as far as I
-know) under Linux. It's pretty trivial to write your own, though; the
-three methods you need to implement are detailed at the end of this
-README.
-
-This work is released under the GNU GPL; see the file COPYING for
-more information.
+This work is released under the GNU GPL; see the file COPYING for more
+information.
 
 DiscID.py
 ---------
@@ -176,9 +188,9 @@ cdrommodule.so
 --------------
   
   This is the platform-specific part of the trio. I have included
-  linux-cdrommodule.c, which implements the necessary functions under
-  Linux, but the interface is intended to be easy enough to
-  implement on any platform.
+  unix/cdrommodule.c, which implements the necessary functions under
+  Linux, FreeBSD, and Solaris, but the interface is intended to be
+  easy enough to implement on any platform.
 
   If you want to write your own cdrommodule.so for your platform,
   here are the functions you'll need to export:
@@ -208,10 +220,17 @@ cdrommodule.so
     real value!
 
   It's relatively easy to write your own cdrommodule.so for whatever
-  platform you're on. Look at linux-cdrommodule.c for hints. If you
+  platform you're on. Look at unix/cdrommodule.c for hints. If you
   end up doing it and you'd like to have your module included in
   the source distribution, just contact me at the email address
   above.
+
+  Thanks to Viktor Fougstedt <viktor@dtek.chalmers.se> for the porting
+  information for Solaris, and Michael Yoon <michael@yoon.org> for the
+  FreeBSD port!
+
+  Also, thanks to Frank David <F.David@digitecgmbh.de> for the win32
+  port!
 
   Note that I throw the exception 'cdrom.error' upon an error;
   you should stick to throwing that if your ioctls (or whatever

@@ -5,7 +5,12 @@
 # Written 17 Nov 1999 by Ben Gertzfield <che@debian.org
 # This work is released under the GNU GPL, version 2 or later.
 
+# Release version 1.0
+
 import DiscID, CDDB, sys
+
+# Change this to '/dev/vol/alias/cdrom0' if you're using the volume
+# manager on Solaris -- or any other cdrom-like device on any platform.
 
 dev = '/dev/cdrom'
 
@@ -31,8 +36,10 @@ if query_stat == 200:
 				       query_info['disc_id'])
     if read_stat == 210:
 	print "success!"
-	for i in range(1, disc_id[1]):
-	    print "Track %.02d: %s" % (i, read_info['TTITLE' + `i`])
+					# Start from 0, not 1
+					# thanks to bgp for the fix!
+	for i in range(0, disc_id[1]):
+	    print "Track %.02d: %s" % (i+1, read_info['TTITLE' + `i`])
     else:
 	print "failure getting track info, status: %i" % read_stat
 

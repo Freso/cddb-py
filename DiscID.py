@@ -9,7 +9,7 @@
 # Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
 # This work is released under the GNU GPL, version 2 or later.
 
-# Release version 0.5
+# Release version 1.0
 # CVS ID: $Id$
 
 import cdrom, sys
@@ -44,7 +44,8 @@ def disc_id(device):
     return [discid, last] + track_frames[:-1] + [ track_frames[-1] / 75 ]
 
 if __name__ == '__main__':
-    dev = '/dev/cdrom'
+    dev = '/dev/cdrom'			# This is just a sane default;
+					# Solaris likes /vol/dev/aliases/cdrom0
 
     if len(sys.argv) >= 2:
 	dev = sys.argv[1]

@@ -5,13 +5,13 @@
 # Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
 # This work is released under the GNU GPL, version 2 or later.
 
-# Release version 0.5
+# Release version 1.0
 # CVS ID: $Id$
 
 import urllib, string, socket, os, fcntl, struct, re
 
 name = 'CDDB.py'
-version = 0.5
+version = 1.0
 
 if os.environ.has_key('EMAIL'):
     (default_user, hostname) = string.split(os.environ['EMAIL'], '@')
@@ -60,10 +60,12 @@ def query(track_info, server_url=default_server,
 	    if line == '.':		# end of matches
 		break
 					# otherwise:
-	    match = string.split(line, ' ', 3)
+					# split into 3 pieces, not 4
+					# (thanks to bgp for the fix!)
+	    match = string.split(line, ' ', 2)
 
-	    result.append({ 'category': match[1], 'disc_id': match[2], 'title':
-			    match[3] })
+	    result.append({ 'category': match[0], 'disc_id': match[1], 'title':
+			    match[2] })
 
 	return [ header[0], result ]
 
