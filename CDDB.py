@@ -5,13 +5,13 @@
 # Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
 # This work is released under the GNU GPL, version 2 or later.
 
-# Release version 1.3
+# Release version 1.4
 # CVS ID: $Id$
 
 import urllib, string, socket, os, struct, re
 
 name = 'CDDB.py'
-version = 1.3
+version = 1.4
 
 if os.environ.has_key('EMAIL'):
     (default_user, hostname) = string.split(os.environ['EMAIL'], '@')
@@ -19,7 +19,8 @@ else:
     default_user = os.geteuid() or os.environ['USER'] or 'user'
     hostname = socket.gethostname() or 'host'
 
-proto = 4
+# Use protocol version 5 to get DYEAR and DGENRE fields.
+proto = 5
 default_server = 'http://freedb.freedb.org/~cddb/cddb.cgi'
 
 def query(track_info, server_url=default_server,
