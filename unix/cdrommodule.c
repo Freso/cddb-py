@@ -1,4 +1,4 @@
-/* 
+/*
  * cdrommodule.c 
  * Python extension module for reading in audio CD-ROM data
  *
@@ -12,11 +12,12 @@
  *
  * FreeBSD support by Michael Yoon <michael@yoon.org>
  * OpenBSD support added by Alexander Guy <alex@andern.org>
+ * Darwin/MacOS X support added by Andre Beckedorf <andre@beckedorf.net>
  *
  * Thanks to Viktor Fougstedt <viktor@dtek.chalmers.se> for info
  * on the <sys/cdio.h> include file to make this work on Solaris!
  *
- * Release version 1.2
+ * Release version 1.4
  * CVS ID: $Id$
  */
 
@@ -30,6 +31,12 @@
 
 #if defined(sun) || defined(__FreeBSD__) || defined(__OpenBSD__)
 #include <sys/cdio.h>
+#endif
+
+#if defined(__APPLE__)
+#include <sys/types.h>
+#include <IOKit/storage/IOCDTypes.h>
+#include <IOKit/storage/IOCDMediaBSDClient.h>
 #endif
 
 /* 
@@ -56,19 +63,28 @@
 
 #elif defined(__OpenBSD__)
 
-#define CDDB_TOC_HEADER_STRUCT ioc_toc_header 
-#define CDDB_STARTING_TRACK_FIELD starting_track 
+#define CDDB_TOC_HEADER_STRUCT ioc_toc_header
+#define CDDB_STARTING_TRACK_FIELD starting_track
 #define CDDB_ENDING_TRACK_FIELD ending_track
-#define CDDB_READ_TOC_HEADER_FLAG CDIOREADTOCHEADER 
-#define CDDB_TOC_ENTRY_STRUCT ioc_read_toc_entry 
-#define CDDB_TRACK_FIELD starting_track 
-#define CDDB_FORMAT_FIELD address_format 
-#define CDDB_MSF_FORMAT CD_MSF_FORMAT  
-#define CDDB_ADDR_FIELD data->addr 
+#define CDDB_READ_TOC_HEADER_FLAG CDIOREADTOCHEADER
+#define CDDB_TOC_ENTRY_STRUCT ioc_read_toc_entry
+#define CDDB_TRACK_FIELD starting_track
+#define CDDB_FORMAT_FIELD address_format
+#define CDDB_MSF_FORMAT CD_MSF_FORMAT
+#define CDDB_ADDR_FIELD data->addr
 #define CDDB_READ_TOC_ENTRY_FLAG CDIOREADTOCENTRIES
-#define CDDB_CDROM_LEADOUT 0xaa 
+#define CDDB_CDROM_LEADOUT 0xaa
 #define CDDB_DEFAULT_CDROM_DEVICE "/dev/cdrom"
 #define CDDB_DEFAULT_CDROM_FLAGS 0
+
+#elif defined (__APPLE__) /* Darwin and MacOS X */
+
+#define CDDB_TOC_HEADER_STRUCT CDDiscInfo
+#define CDDB_STARTING_TRACK_FIELD numberOfFirstTrack
+#define CDDB_ENDING_TRACK_FIELD lastTrackNumberInLastSessionLSB
+#define CDDB_TOC_ENTRY_STRUCT CDTrackInfo
+#define CDDB_DEFAULT_CDROM_DEVICE "/dev/disk1"
+#define CDDB_DEFAULT_CDROM_FLAGS O_RDONLY | O_NONBLOCK
 
 #else /* Linux and Solaris */
 
@@ -99,6 +115,10 @@ static PyObject *cdrom_error;
 static PyObject *cdrom_toc_header(PyObject *self, PyObject *args)
 {
     struct CDDB_TOC_HEADER_STRUCT hdr;
+#if defined(__APPLE__)
+    dk_cd_read_disc_info_t discInfoParams;	
+#endif
+	
     PyObject *cdrom_fileobj;
     int cdrom_fd;
 
@@ -107,7 +127,15 @@ static PyObject *cdrom_toc_header(PyObject *self, PyObject *args)
 
     cdrom_fd = fileno(PyFile_AsFile(cdrom_fileobj));
 
+#if defined(__APPLE__)
+    memset(&discInfoParams, 0, sizeof(discInfoParams));
+    discInfoParams.buffer = &hdr;
+    discInfoParams.bufferLength = sizeof(hdr);
+	
+    if (ioctl(cdrom_fd, DKIOCCDREADDISCINFO, &discInfoParams) < 0) {
+#elif
     if (ioctl(cdrom_fd, CDDB_READ_TOC_HEADER_FLAG, &hdr) < 0) {
+#endif
 	PyErr_SetFromErrno(cdrom_error);
 	return NULL;
     }
@@ -125,6 +153,9 @@ static PyObject *cdrom_toc_entry(PyObject *self, PyObject *args)
 
 #if defined(__OpenBSD__)
     struct cd_toc_entry data;
+#elif defined(__APPLE__)
+    dk_cd_read_track_info_t trackInfoParams;
+    CDMSF trackMSF;
 #endif
 
     if (!PyArg_ParseTuple(args, "O!b", &PyFile_Type, &cdrom_fileobj, &track))
@@ -132,14 +163,32 @@ static PyObject *cdrom_toc_entry(PyObject *self, PyObject *args)
 
     cdrom_fd = fileno(PyFile_AsFile(cdrom_fileobj));
 
+#if defined(__APPLE__)
+    memset( &trackInfoParams, 0, sizeof(trackInfoParams));
+    trackInfoParams.addressType = kCDTrackInfoAddressTypeTrackNumber;
+    trackInfoParams.address = track;
+    trackInfoParams.bufferLength = sizeof(entry);
+    trackInfoParams.buffer = &entry;
+	
+    if (ioctl(cdrom_fd, DKIOCCDREADTRACKINFO, &trackInfoParams) < 0) {
+        PyErr_SetFromErrno(cdrom_error);
+        return NULL;
+    }
+
+    trackMSF = CDConvertLBAToMSF(entry.trackStartAddress);
+	
+    return Py_BuildValue("bbb", trackMSF.minute, 
+			 trackMSF.second, 
+			 trackMSF.frame);
+#elif
     entry.CDDB_TRACK_FIELD = track;
     entry.CDDB_FORMAT_FIELD = CDDB_MSF_FORMAT;
-
+	
 #if defined(__OpenBSD__)
     entry.data = &data;
     entry.data_len = sizeof(data);
 #endif
-
+    
     if (ioctl(cdrom_fd, CDDB_READ_TOC_ENTRY_FLAG, &entry) < 0) {
 	PyErr_SetFromErrno(cdrom_error);
 	return NULL;
@@ -148,6 +197,7 @@ static PyObject *cdrom_toc_entry(PyObject *self, PyObject *args)
     return Py_BuildValue("bbb", entry.CDDB_ADDR_FIELD.msf.minute, 
 			 entry.CDDB_ADDR_FIELD.msf.second, 
 			 entry.CDDB_ADDR_FIELD.msf.frame);
+#endif
 }
 
 static PyObject *cdrom_leadout(PyObject *self, PyObject *args)
@@ -158,6 +208,11 @@ static PyObject *cdrom_leadout(PyObject *self, PyObject *args)
 
 #if defined(__OpenBSD__)
     struct cd_toc_entry data;
+#elif defined(__APPLE__)
+    struct CDDB_TOC_HEADER_STRUCT hdr;	
+    dk_cd_read_disc_info_t discInfoParams;	
+    dk_cd_read_track_info_t trackInfoParams;
+    CDMSF trackMSF;
 #endif
 
     if (!PyArg_ParseTuple(args, "O!", &PyFile_Type, &cdrom_fileobj))
@@ -165,6 +220,33 @@ static PyObject *cdrom_leadout(PyObject *self, PyObject *args)
 
     cdrom_fd = fileno(PyFile_AsFile(cdrom_fileobj));
 
+#if defined(__APPLE__)
+    memset(&discInfoParams, 0, sizeof(discInfoParams));
+    discInfoParams.buffer = &hdr;
+    discInfoParams.bufferLength = sizeof(hdr);
+
+    if (ioctl(cdrom_fd, DKIOCCDREADDISCINFO, &discInfoParams) < 0) {
+	PyErr_SetFromErrno(cdrom_error);
+	return NULL;
+    }
+
+    memset(&trackInfoParams, 0, sizeof(trackInfoParams));
+    trackInfoParams.addressType = kCDTrackInfoAddressTypeTrackNumber;
+    trackInfoParams.address = hdr.CDDB_ENDING_TRACK_FIELD;
+    trackInfoParams.bufferLength = sizeof(entry);
+    trackInfoParams.buffer = &entry;
+	
+    if (ioctl(cdrom_fd, DKIOCCDREADTRACKINFO, &trackInfoParams) < 0) {
+	PyErr_SetFromErrno(cdrom_error);
+	return NULL;
+    }
+
+    trackMSF = CDConvertLBAToMSF(entry.trackStartAddress + entry.trackSize + 1);
+	
+    return Py_BuildValue("bbb", trackMSF.minute, 
+			 trackMSF.second, 
+			 trackMSF.frame);
+#elif
     entry.CDDB_TRACK_FIELD = CDDB_CDROM_LEADOUT;
     entry.CDDB_FORMAT_FIELD = CDDB_MSF_FORMAT;
 
@@ -181,6 +263,7 @@ static PyObject *cdrom_leadout(PyObject *self, PyObject *args)
     return Py_BuildValue("bbb", entry.CDDB_ADDR_FIELD.msf.minute, 
 			 entry.CDDB_ADDR_FIELD.msf.second, 
 			 entry.CDDB_ADDR_FIELD.msf.frame);
+#endif
 }
 
 int cdrom_close(FILE *cdrom_file) 
@@ -206,7 +289,7 @@ static PyObject* cdrom_open(PyObject *self, PyObject *args)
 	PyErr_SetFromErrno(cdrom_error);
 	return NULL;
     }
-    
+
     cdrom_file = fdopen(cdrom_fd, "r");
 
     if (cdrom_file == NULL) {
