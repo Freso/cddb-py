@@ -1,3 +1,13 @@
+v1.1
+----
+
+Fixes for odd cases under recent-ish Linux kernels, whereby the cdrom
+driver wants programs to open the device in mode O_RDONLY | O_NONBLOCK
+if they're reading audio tracks.
+
+Fix for when running DiscID.py from command line, was passing in
+name of device rather than opened device previously (how embarassing!)
+
 v1.0
 ----
 
