@@ -3,6 +3,19 @@
 #include <sys/ioctl.h>
 #include <linux/cdrom.h>
 
+/* 
+ * linux-cdrommodule.c 
+ * Python extension module for reading in audio CD-ROM data
+ *
+ * Please port me to other OSes besides Linux! See the README for info.
+ *
+ * Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
+ * This work is released under the GNU GPL, version 2 or later.
+ *
+ * Release version 0.5
+ * CVS ID: $Id$
+ */
+
 static PyObject *cdrom_error;
 
 static PyObject *cdrom_toc_header(PyObject *self, PyObject *args)

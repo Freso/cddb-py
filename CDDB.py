@@ -5,12 +5,20 @@
 # Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
 # This work is released under the GNU GPL, version 2 or later.
 
+# Release version 0.5
+# CVS ID: $Id$
+
 import urllib, string, socket, os, fcntl, struct, re
 
 name = 'CDDB.py'
-version = 0.1
-default_user = 'user'
-hostname = socket.gethostname()
+version = 0.5
+
+if os.environ.has_key('EMAIL'):
+    (default_user, hostname) = string.split(os.environ['EMAIL'], '@')
+else:
+    default_user = os.geteuid() or os.environ['USER'] or 'user'
+    hostname = socket.gethostname() or 'host'
+
 proto = 4
 default_server = 'http://cddb.cddb.com/~cddb/cddb.cgi'
 
@@ -29,7 +37,7 @@ def query(track_info, server_url=default_server,
 
     url = "%s?cmd=cddb+query+%s&hello=%s+%s+%s+%s&proto=%i" % \
 	  (server_url, query_str, user, host, name, version, proto)
-    
+
     response = urllib.urlopen(url)
     
     # Four elements in header: status, category, disc-id, title

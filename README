@@ -1,7 +1,7 @@
-README for CDDB.py and DiscID.py
+README for CDDB.py and DiscID.py, version 0.5
 
-Ben Gertzfield <che@debian.org>
---------------------------------
+Copyright (C) 1999 Ben Gertzfield <che@debian.org>
+--------------------------------------------------
 
 The dynamic duo of CDDB.py and DiscID.py, along with their side-kick C
 module cdrommodule.so, provide an easy way for Python programs to
@@ -29,6 +29,9 @@ Note that the given linux-cdrommodule.c will only work (as far as I
 know) under Linux. It's pretty trivial to write your own, though; the
 three methods you need to implement are detailed at the end of this
 README.
+
+This work is released under the GNU GPL; see the file COPYING for
+more information.
 
 DiscID.py
 ---------
