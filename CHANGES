@@ -1,3 +1,14 @@
+v1.4
+----
+
+Updated FreeDB version field to 5; this allows us to get access to the
+DYEAR and DGENRE fields in disc info from CDDB.read().
+
+Added Mac OS X support to cdrommodule.c; thanks to Andre Beckedorf
+and Jeffrey C. Jacobs.
+
+Changed default Solaris CD-ROM device to /dev/vol/aliases/cdrom0.
+
 v1.3
 ----
 

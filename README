@@ -1,7 +1,7 @@
-README for CDDB.py and DiscID.py, version 1.3
+README for CDDB.py and DiscID.py, version 1.4
 
-Copyright (C) 1999, 2000 Ben Gertzfield <che@debian.org>
---------------------------------------------------------
+Copyright (C) 1999-2003 Ben Gertzfield <che@debian.org>
+-------------------------------------------------------
 
 The dynamic duo of CDDB.py and DiscID.py, along with their side-kick C
 module cdrommodule.so, provide an easy way for Python programs to
@@ -27,8 +27,8 @@ string to anything you wish for accessing their servers.
 
 -----
 
-If you are using Python 1.6 or 2.0 on Linux, FreeBSD, OpenBSD, or
-Solaris, installing is simple.  As root, run:
+If you are using Python 1.6 or 2.0 or later on Linux, FreeBSD,
+OpenBSD, Mac OS X, or Solaris, installing is simple.  As root, run:
 
 # python setup.py install
 
@@ -39,7 +39,7 @@ more information.)
 -----
 
 If you have an older version of Python installed on Linux, FreeBSD,
-OpenBSD, or Solaris:
+OpenBSD, Mac OS X, or Solaris:
 
 % make -f Makefile.pre.in boot
 % make
@@ -97,9 +97,9 @@ device = DiscID.open()
   
   This is the default, cross-platform way to open the audio
   CD-ROM device.  The device defaults to /dev/cdrom on Linux and BSD,
-  /dev/vol/alias/cdrom0 on Solaris, and cdaudio under Windows.  You
-  do not have to use this function to open the audio CD-ROM device,
-  but it's a sane default.
+  /dev/disk1 on Mac OS X, /dev/vol/aliases/cdrom0 on Solaris, and
+  cdaudio under Windows.  You do not have to use this function to open
+  the audio CD-ROM device, but it's a sane default.
  
   If you want to specify a different device name or flags for opening, 
   use the following:
@@ -218,8 +218,8 @@ There are two methods of the CDDB module that are of interest:
   the keys of which follow the keywords returned by the CDDB read
   command.
 
-  Dictionary entries that will be of inter
-est:
+  Dictionary entries that will be of interest (note: not all of
+  these keys will always be available for all discs):
 
   info['TTITLE#'] (where # ranges from 1 to the last track on the disc):
     The title of track number #. Note that this is not padded on the
@@ -240,6 +240,12 @@ est:
   info['revision']
     Optional; revision of this CDDB entry
 
+  info['DYEAR']
+    Optional; year this disc was released
+
+  info['DGENRE']
+    Optional; Genre string describing this disc
+
   Note that aside from TTITLE#, most of these fields will be empty
   strings for most discs. Also, submitted_via and revision are
   technically in the comments returned from the server, so may or
@@ -253,8 +259,8 @@ cdrommodule.so
   
   This is the platform-specific part of the trio. I have included
   unix/cdrommodule.c, which implements the necessary functions under
-  Linux, FreeBSD, OpenBSD, and Solaris, but the interface is intended to be
-  easy enough to implement on any platform.
+  Linux, FreeBSD, OpenBSD, Mac OS X, and Solaris, but the interface is
+  intended to be easy enough to implement on any platform.
 
   If you want to write your own cdrommodule.so for your platform,
   here are the functions you'll need to export:
@@ -320,3 +326,6 @@ cdrommodule.so
 
   And thanks to Alexander S . Guy <a7r@andern.org> for the OpenBSD
   patch.
+
+  Finally, thanks to Andre Beckedorf and Jeffrey C. Jacobs for the
+  Mac OS X cdrommodule.c port.
