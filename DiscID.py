@@ -50,11 +50,11 @@ if __name__ == '__main__':
     if len(sys.argv) >= 2:
 	dev = sys.argv[1]
 
-    disc_info = disc_id(dev)
+    fd = open(dev)
+
+    disc_info = disc_id(fd)
 
     print ('%08lx' % disc_info[0]),
 
     for i in disc_info[1:]:
 	print ('%d' % i),
-
-
