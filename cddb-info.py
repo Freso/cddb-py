@@ -46,7 +46,7 @@ if query_stat == 200:
 elif query_stat == 210 or query_stat == 211:
     print "multiple matches found! Matches are:"
     for i in query_info:
-	print "ID: %08lx Category: %s Title: %s" % \
+	print "ID: %s Category: %s Title: %s" % \
 	      (i['disc_id'], i['category'], i['title'])
 
 else:
