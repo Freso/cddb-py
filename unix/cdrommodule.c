@@ -96,7 +96,7 @@ static PyObject *cdrom_toc_entry(PyObject *self, PyObject *args)
     cdrom_fd = fileno(PyFile_AsFile(cdrom_fileobj));
 
     entry.CDDB_TRACK_FIELD = track;
-    entry.CDDB_FORMAT_FIELD = CDROM_MSF;
+    entry.CDDB_FORMAT_FIELD = CDDB_MSF_FORMAT;
 
     if (ioctl(cdrom_fd, CDDB_READ_TOC_ENTRY_FLAG, &entry) < 0) {
 	PyErr_SetFromErrno(cdrom_error);
