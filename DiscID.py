@@ -44,13 +44,19 @@ def disc_id(device):
     return [discid, last] + track_frames[:-1] + [ track_frames[-1] / 75 ]
 
 if __name__ == '__main__':
+    import os                           # because Linux wants O_RDONLY
+                                        # | O_NONBLOCK
+
     dev = '/dev/cdrom'			# This is just a sane default;
 					# Solaris likes /vol/dev/aliases/cdrom0
 
     if len(sys.argv) >= 2:
 	dev = sys.argv[1]
 
-    fd = open(dev)
+    # Thanks to John Watson for pointing out that Linux wants audio-CD-
+    # using programs to open in O_RDONLY | O_NONBLOCK mode.
+
+    fd = os.fdopen(os.open(dev, os.O_RDONLY | os.O_NONBLOCK))
 
     disc_info = disc_id(fd)
 
