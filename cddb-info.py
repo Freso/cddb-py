@@ -5,26 +5,24 @@
 # Written 17 Nov 1999 by Ben Gertzfield <che@debian.org
 # This work is released under the GNU GPL, version 2 or later.
 
-# Release version 1.2
+# Release version 1.3
 
 import DiscID, CDDB, sys, os
 
-# Change this to '/dev/vol/alias/cdrom0' if you're using the volume
-# manager on Solaris -- or any other cdrom-like device on any platform.
-
-dev = '/dev/cdrom'
+dev = None
+cdrom = None
 
 if len(sys.argv) >= 2:
     dev = sys.argv[1]
 
-# Thanks to John Watson for pointing out that Linux wants audio-CD-
-# using programs to open in O_RDONLY | O_NONBLOCK mode.
-
-fd = os.fdopen(os.open(dev, os.O_RDONLY | os.O_NONBLOCK))
+if dev:
+    cdrom = DiscID.open(dev)
+else:
+    cdrom = DiscID.open()
 
 print "Getting disc id in CDDB format...",
 
-disc_id = DiscID.disc_id(fd)
+disc_id = DiscID.disc_id(cdrom)
 
 print "Disc ID: %08lx Num tracks: %d" % (disc_id[0], disc_id[1])
 print "Querying CDDB for info on disc...",

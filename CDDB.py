@@ -5,13 +5,13 @@
 # Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
 # This work is released under the GNU GPL, version 2 or later.
 
-# Release version 1.2
+# Release version 1.3
 # CVS ID: $Id$
 
-import urllib, string, socket, os, fcntl, struct, re
+import urllib, string, socket, os, struct, re
 
 name = 'CDDB.py'
-version = 1.2
+version = 1.3
 
 if os.environ.has_key('EMAIL'):
     (default_user, hostname) = string.split(os.environ['EMAIL'], '@')
@@ -20,10 +20,11 @@ else:
     hostname = socket.gethostname() or 'host'
 
 proto = 4
-default_server = 'http://cddb.cddb.com/~cddb/cddb.cgi'
+default_server = 'http://freedb.freedb.org/~cddb/cddb.cgi'
 
 def query(track_info, server_url=default_server,
-	  user=default_user, host=hostname):
+	  user=default_user, host=hostname, client_name=name,
+          client_version=version):
 
     disc_id = track_info[0]
     num_tracks = track_info[1]
@@ -36,7 +37,8 @@ def query(track_info, server_url=default_server,
     query_str = urllib.quote_plus(string.rstrip(query_str))
 
     url = "%s?cmd=cddb+query+%s&hello=%s+%s+%s+%s&proto=%i" % \
-	  (server_url, query_str, user, host, name, version, proto)
+	  (server_url, query_str, user, host, client_name,
+           client_version, proto)
 
     response = urllib.urlopen(url)
     
@@ -73,10 +75,12 @@ def query(track_info, server_url=default_server,
 	return [ header[0], None ]
 
 def read(category, disc_id, server_url=default_server, 
-	 user=default_user, host=hostname):
+	 user=default_user, host=hostname, client_name=name,
+         client_version=version):
 
     url = "%s?cmd=cddb+read+%s+%s&hello=%s+%s+%s+%s&proto=%i" % \
-	  (server_url, category, disc_id, user, host, name, version, proto)
+	  (server_url, category, disc_id, user, host, client_name,
+           client_version, proto)
 
     response = urllib.urlopen(url)
     

@@ -9,11 +9,11 @@ import mci
 import string
 
 def toc_header(device):
-   return (1, string.atoi(mci.mciSendString("status CDAudio number of tracks")))
+   return (1, string.atoi(mci.mciSendString("status %s number of tracks" % device)))
 
 def toc_entry(device, track):
-   mci.mciSendString("set CDAudio time format msf")
-   mciString = "status CDAudio position track " +  `track`
+   mci.mciSendString("set %s time format msf" % device)
+   mciString = "status %s position track %i" % (device, track)
    resultStr = mci.mciSendString(mciString)
    result = string.split(resultStr, ':', 2)
    r = []
@@ -25,8 +25,8 @@ def toc_entry_pos(device, track):
    
 
 def toc_entry_len(device, track): 
-   mci.mciSendString("set CDAudio time format msf")
-   mciString = "status CDAudio length track " +  `track`
+   mci.mciSendString("set %s time format msf" % device)
+   mciString = "status %s length track %i" % (device, track)
    resultStr = mci.mciSendString(mciString)
    result = string.split(resultStr, ':', 2)
    r = []
@@ -39,14 +39,18 @@ def leadout(device):
    trackLenMin, trackLenSecond, trackLenFrame = toc_entry_len(device, lastTrack)
    # calculate raw leadout
    leadoutMin, leadoutSecond, leadoutFrame = ( trackPosMin +  trackLenMin,  trackPosSecond  + trackLenSecond, trackPosFrame + trackLenFrame)   
-   # add windows spezific correction
+   # add windows specific correction
    leadoutFrame = leadoutFrame + leadoutFrame
    # convert to minute, second, frame
    if leadoutFrame >= 75:
       leadoutFrame  = leadoutFrame - 75;
-      leadoutSecond = leadoutSecond +1           
+      leadoutSecond = leadoutSecond + 1           
    if leadoutSecond >= 60:
       leadoutSecond  = leadoutSecond - 60;
-      leadoutMin = leadoutMin +1           
+      leadoutMin = leadoutMin + 1           
    # return leadout as tuple
    return (leadoutMin, leadoutSecond, leadoutFrame)
+
+def open(device="cdaudio", flags="wait"):
+    mci.mciSendString("open %s %s" % (device, flags))
+    return device

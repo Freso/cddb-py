@@ -1,3 +1,37 @@
+v1.3
+----
+
+Phew. Lots of updating.
+
+Default to freedb.freedb.org for the CDDB server; I don't want to play
+GraceNote's licensing games.  FreeDB is great and works perfectly.
+
+New cdrom.open() and wrapper DiscID.open() calls to perform
+"do what I mean" CD audio device opening appropriate to each
+platform; even works on Win32.
+
+Update win32/mci.dll for Python 2.0; thanks to Mike Roberts
+<zoarre@yahoo.com> for the recompile!  Also, remove all occurences of
+'import fcntl', as it's no longer necessary with the new DiscID.open()
+call.  Tested and works on Windows 2000 with Python 2.0.
+
+Update cddb-info.py to reflect the new simple DiscID.open() call.
+
+Update setup.py to use the new Extension module instead of the
+old way for specifying which C files to compile.
+
+Update win32/cdrom.py to add a cdrom.open() call.  Since win32 does
+not use an open file for the audio cdrom, just returns the "device"
+string passed in. The default of cdaudio should be fine for most
+people, but I assume there are alternate "device" names.
+
+Update unix/cdrommodule.c to add a cdrom.open() call.  Uses #define'd
+defaults appropriate to each platform for both the CDROM device file
+name (/dev/cdrom on bsd/linux, /dev/vol/alias/cdrom0 on Solaris) and
+the flags to use (O_RDONLY | O_NONBLOCK on Linux).
+
+Add setup-win.py, experimental win32 setup.py.  Untested.
+
 v1.2
 ----
 

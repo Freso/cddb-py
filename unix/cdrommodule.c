@@ -51,6 +51,8 @@
 #define CDDB_ADDR_FIELD entry.addr 
 #define CDDB_READ_TOC_ENTRY_FLAG CDIOREADTOCENTRY 
 #define CDDB_CDROM_LEADOUT 0xaa 
+#define CDDB_DEFAULT_CDROM_DEVICE "/dev/cdrom"
+#define CDDB_DEFAULT_CDROM_FLAGS 0
 
 #elif defined(__OpenBSD__)
 
@@ -65,6 +67,8 @@
 #define CDDB_ADDR_FIELD data->addr 
 #define CDDB_READ_TOC_ENTRY_FLAG CDIOREADTOCENTRIES
 #define CDDB_CDROM_LEADOUT 0xaa 
+#define CDDB_DEFAULT_CDROM_DEVICE "/dev/cdrom"
+#define CDDB_DEFAULT_CDROM_FLAGS 0
 
 #else /* Linux and Solaris */
 
@@ -79,6 +83,14 @@
 #define CDDB_ADDR_FIELD cdte_addr 
 #define CDDB_READ_TOC_ENTRY_FLAG CDROMREADTOCENTRY 
 #define CDDB_CDROM_LEADOUT CDROM_LEADOUT
+
+#ifdef sun
+#define CDDB_DEFAULT_CDROM_DEVICE "/dev/vol/alias/cdrom0"
+#else
+#define CDDB_DEFAULT_CDROM_DEVICE "/dev/cdrom"
+#endif /* sun */
+
+#define CDDB_DEFAULT_CDROM_FLAGS O_RDONLY | O_NONBLOCK
 
 #endif /* __FreeBSD__ */
 
@@ -171,10 +183,53 @@ static PyObject *cdrom_leadout(PyObject *self, PyObject *args)
 			 entry.CDDB_ADDR_FIELD.msf.frame);
 }
 
+int cdrom_close(FILE *cdrom_file) 
+{
+    return fclose(cdrom_file);
+}
+
+static PyObject* cdrom_open(PyObject *self, PyObject *args)
+{
+    int cdrom_fd;
+    FILE *cdrom_file;
+    char *cdrom_device = CDDB_DEFAULT_CDROM_DEVICE;
+    int cdrom_open_flags = CDDB_DEFAULT_CDROM_FLAGS;
+
+    PyObject *cdrom_file_object;
+
+    if (!PyArg_ParseTuple(args, "|si", &cdrom_device, &cdrom_open_flags))
+	return NULL;
+
+    cdrom_fd = open(cdrom_device, cdrom_open_flags);
+
+    if (cdrom_fd == -1) {
+	PyErr_SetFromErrno(cdrom_error);
+	return NULL;
+    }
+    
+    cdrom_file = fdopen(cdrom_fd, "r");
+
+    if (cdrom_file == NULL) {
+	PyErr_SetFromErrno(cdrom_error);
+	return NULL;
+    }
+
+    cdrom_file_object = PyFile_FromFile(cdrom_file, cdrom_device, "r", cdrom_close);
+
+    if (cdrom_file_object == NULL) {
+	PyErr_SetString(cdrom_error, "Internal conversion from file pointer to Python object failed");
+	fclose(cdrom_file);
+	return NULL;
+    }
+
+    return Py_BuildValue("O", cdrom_file_object);
+}
+
 static PyMethodDef cdrom_methods[] = {
     { "toc_header", cdrom_toc_header, METH_VARARGS },
     { "toc_entry", cdrom_toc_entry, METH_VARARGS },
     { "leadout", cdrom_leadout, METH_VARARGS},
+    { "open", cdrom_open, METH_VARARGS},
     { NULL, NULL }
 };
 

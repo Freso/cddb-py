@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Setup script for the CDDB module distribution."""
+"""Setup script for the CDDB module distribution under Win32."""
 
 __revision__ = "$Id$"
 
@@ -15,6 +15,7 @@ setup (# Distribution meta-data
        url = "http://csl.cse.ucsc.edu/~ben/python/",
 
        # Description of the modules and packages in the distribution
-       py_modules = ['CDDB', 'DiscID'],
-       ext_modules = [ Extension('cdrom', ['unix/cdrommodule.c']) ]
+       py_modules = ['CDDB', 'DiscID', 'win32/cdrom'],
+       ext_modules = [ Extension('mci', ['win32/mci.c']) ],
+#       data_files = [('', ['win32/mci.dll'])]
       )

@@ -9,7 +9,7 @@
 # Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
 # This work is released under the GNU GPL, version 2 or later.
 
-# Release version 1.2
+# Release version 1.3
 # CVS ID: $Id$
 
 import cdrom, sys
@@ -22,6 +22,17 @@ def cddb_sum(n):
 	n = n / 10
 
     return ret
+
+def open(device=None, flags=None):
+    # Allow this function to be called with no arguments,
+    # specifying that we should call cdrom.open() with
+    # no arguments.
+    if device == None:
+        return cdrom.open()
+    elif flags == None:
+        return cdrom.open(device)
+    else:
+        return cdrom.open(device, flags)
 
 def disc_id(device):
     (first, last) = cdrom.toc_header(device)
@@ -44,21 +55,19 @@ def disc_id(device):
     return [discid, last] + track_frames[:-1] + [ track_frames[-1] / 75 ]
 
 if __name__ == '__main__':
-    import os                           # because Linux wants O_RDONLY
-                                        # | O_NONBLOCK
 
-    dev = '/dev/cdrom'			# This is just a sane default;
-					# Solaris likes /vol/dev/aliases/cdrom0
-
+    dev_name = None
+    device = None
+    
     if len(sys.argv) >= 2:
-	dev = sys.argv[1]
+	dev_name = sys.argv[1]
 
-    # Thanks to John Watson for pointing out that Linux wants audio-CD-
-    # using programs to open in O_RDONLY | O_NONBLOCK mode.
-
-    fd = os.fdopen(os.open(dev, os.O_RDONLY | os.O_NONBLOCK))
-
-    disc_info = disc_id(fd)
+    if dev_name:
+        device = open(dev_name)
+    else:
+        device = open()
+        
+    disc_info = disc_id(device)
 
     print ('%08lx' % disc_info[0]),
 
