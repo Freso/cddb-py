@@ -133,7 +133,7 @@ static PyObject *cdrom_toc_header(PyObject *self, PyObject *args)
     discInfoParams.bufferLength = sizeof(hdr);
 	
     if (ioctl(cdrom_fd, DKIOCCDREADDISCINFO, &discInfoParams) < 0) {
-#elif
+#else /* not defined(__APPLE__) */
     if (ioctl(cdrom_fd, CDDB_READ_TOC_HEADER_FLAG, &hdr) < 0) {
 #endif
 	PyErr_SetFromErrno(cdrom_error);
@@ -180,7 +180,7 @@ static PyObject *cdrom_toc_entry(PyObject *self, PyObject *args)
     return Py_BuildValue("bbb", trackMSF.minute, 
 			 trackMSF.second, 
 			 trackMSF.frame);
-#elif
+#else /* not defined(__APPLE__) */
     entry.CDDB_TRACK_FIELD = track;
     entry.CDDB_FORMAT_FIELD = CDDB_MSF_FORMAT;
 	
@@ -246,7 +246,7 @@ static PyObject *cdrom_leadout(PyObject *self, PyObject *args)
     return Py_BuildValue("bbb", trackMSF.minute, 
 			 trackMSF.second, 
 			 trackMSF.frame);
-#elif
+#else /* not defined(__APPLE__) */
     entry.CDDB_TRACK_FIELD = CDDB_CDROM_LEADOUT;
     entry.CDDB_FORMAT_FIELD = CDDB_MSF_FORMAT;
 
