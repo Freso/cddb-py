@@ -85,7 +85,7 @@
 #define CDDB_CDROM_LEADOUT CDROM_LEADOUT
 
 #ifdef sun
-#define CDDB_DEFAULT_CDROM_DEVICE "/dev/vol/alias/cdrom0"
+#define CDDB_DEFAULT_CDROM_DEVICE "/dev/vol/aliases/cdrom0"
 #else
 #define CDDB_DEFAULT_CDROM_DEVICE "/dev/cdrom"
 #endif /* sun */
