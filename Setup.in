@@ -1,2 +1,2 @@
 *shared*
-cdrom cdrommodule.c
+cdrom linux-cdrommodule.c

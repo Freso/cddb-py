@@ -1,0 +1,194 @@
+README for CDDB.py and DiscID.py
+
+Ben Gertzfield <che@debian.org>
+--------------------------------
+
+The dynamic duo of CDDB.py and DiscID.py, along with their side-kick C
+module cdrommodule.so, provide an easy way for Python programs to
+fetch information on audio CDs from CDDB (http://www.cddb.com/) -- a
+very large online database of track listings and other information on
+audio CDs.
+
+To build:
+
+% make -f Makefile.pre.in boot
+% make
+
+The distribution is split up into three parts: 
+
+* CDDB.py, for querying the online CDDB servers.
+* cdrommodule.so, a C extension module, for actually querying the 
+  CD-ROM drive for the track start times and other data.
+* DiscID.py, a wrapper around cdrommodule.so, which formats the
+  track data the way the CDDB protocol requires it.
+
+Also included is cddb-info.py, a quick example of how to use CDDB.py
+and DiscID.py together to fetch the track info of an audio CD.
+
+Note that the given linux-cdrommodule.c will only work (as far as I
+know) under Linux. It's pretty trivial to write your own, though; the
+three methods you need to implement are detailed at the end of this
+README.
+
+DiscID.py
+---------
+
+The DiscID.py module is a platform-independant wrapper around the
+cdrommodule.so C extension, and is used to get the track information
+of an audio CD into the format the CDDB protocol requires.
+
+There is only one method of the DiscID module that is of interest:
+
+disc_id = DiscID.disc_id(device)
+
+  Given an opened file object corresponding to a CD-ROM device,
+  return an array of the format:
+
+  [cddb_checksum, num_tracks, num_frames 1, ... num_frames n, num_seconds]
+
+  cddb_checksum is the 128-bit checksum of the track information,
+  as specified by CDDB
+
+  num_tracks is the number of tracks on the disc
+
+  num_frames x is the offset of the start of track x, in terms of
+  frames. A frame is simply 1/75th of a second.  x ranges from
+  1 to num_tracks.
+
+  num_seconds is the total number of seconds on the disc, as measured
+  by the start of the special 'lead-out' track.
+
+The disc_id returned from DiscID.disc_id may look complex, but it's
+exactly in the format CDDB wants, and is the format needed for
+CDDB.query(disc_id), as described below.
+
+CDDB.py
+-------
+
+The CDDB.py module is platform-independant; its job is to query
+the online CDDB servers via HTTP and retrieve track listings and
+any other data relevant to the specified audio CD.
+
+There are two methods of the CDDB module that are of interest:
+
+(status, info) = CDDB.query(disc_id)
+
+  Given a disc_id, as returned from DiscID.disc_id() above,
+  return a tuple of two items. The first item returned is an integer
+  indicating the status returned from the server; it will be one of
+  the following:
+
+  * 200: Success
+  * 211: Multiple inexact matches were found
+  * 210: Multiple exact matches were found
+  * 202: No match found
+  * 403: Error; database entry is corrupt
+  * 409: Error; no handshake. (client-side error?)
+
+  Any other return code is failure due to a server or client error.
+
+  The actual contents of the second item returned depend on the
+  status returned by the server. On 200, a dictionary containing
+  three items is returned:
+
+  info['category']: The category the audio CD belongs in
+  info['disc_id']:  The CDDB checksum disc ID of the given disc
+  info['title']:    The title of the audio CD
+
+  On 211 or 210, a list will be returned as the second item.  Each
+  element of the list will be a dictionary containing three items,
+  exactly the same as a single 200 success return.
+
+  On any other status, None will be returned as the second item.
+
+(status, info) = CDDB.read(category, disc_id)
+
+  Given a category and a disc ID checksum as returned from
+  CDDB.query(), return a tuple of two items. The first item returned
+  is an integer indicating the status, as above. It will be one of
+  the following:
+
+  * 210: Success
+  * 401: Specified entry not found
+  * 402: Server error
+  * 403: Database entry is corrupt
+  * 409: No handshake
+  * 417: Access limit exceeded
+
+  Any other return value is a server or client error.  
+
+  The second value returned from CDDB.read() depends on the status
+  returned by the server. On 210, a dictionary will be returned,
+  the keys of which follow the keywords returned by the CDDB read
+  command.
+
+  Dictionary entries that will be of interest:
+
+  info['TTITLE#'] (where # ranges from 1 to the last track on the disc):
+    The title of track number #. Note that this is not padded on the
+    left with zeroes.
+
+  info['DTITLE']
+    The title of the disc.
+
+  info['EXTD']
+    Extended data on the CD. (credits, etc.)
+
+  info['EXTT#']
+    Extended data on track number #.
+
+  info['submitted_via']
+    Optional; name of the client that submitted the data for this disc
+
+  info['revision']
+    Optional; revision of this CDDB entry
+
+  Note that aside from TTITLE#, most of these fields will be empty
+  strings for most discs. Also, submitted_via and revision are
+  technically in the comments returned from the server, so may or
+  may not even be there. Test first!
+
+cdrommodule.so
+--------------
+  
+  This is the platform-specific part of the trio. I have included
+  linux-cdrommodule.c, which implements the necessary functions under
+  Linux, but the interface is intended to be easy enough to
+  implement on any platform.
+
+  If you want to write your own cdrommodule.so for your platform,
+  here are the functions you'll need to export:
+
+  (first, last) = cdrom.toc_header(file)
+    Given an open file object corresponding to a CD-ROM device,
+    return a tuple of two integer values, (first, last). These are the
+    track numbers of the first and last tracks, respectively.
+
+  (min, sec, frame) = cdrom.toc_entry(file, track)
+    Given an open file object and a track number, return a tuple
+    of three integer values, (minute, second, frame). These correspond
+    to the start time of the track, as given in MSF form. Note that
+    a frame is simply 1/75th of a second.
+
+  (min, sec, frame) = cdrom.leadout(file)
+    Given an open file object, return a tuple of three interger values,
+    (minute, second, frame). These correspond to the start time of
+    the special 'leadout' track, generally track 0xAA, as given in
+    MSF form. 
+
+    If your platform (i.e. Windows) cannot return this leadout
+    track's time directly, you'll need to calculate it by taking the
+    starting position of the last track and adding the length of the
+    last track onto that. Watch out, because Windows' awful interface
+    returns the length of the last track as one frame short of the
+    real value!
+
+  It's relatively easy to write your own cdrommodule.so for whatever
+  platform you're on. Look at linux-cdrommodule.c for hints. If you
+  end up doing it and you'd like to have your module included in
+  the source distribution, just contact me at the email address
+  above.
+
+  Note that I throw the exception 'cdrom.error' upon an error;
+  you should stick to throwing that if your ioctls (or whatever
+  your platform uses) fail, so we can stay consistant.

@@ -6,7 +6,6 @@
 # This work is released under the GNU GPL, version 2 or later.
 
 import urllib, string, socket, os, fcntl, struct, re
-from CDROM import *
 
 name = 'CDDB.py'
 version = 0.1
@@ -17,11 +16,19 @@ default_server = 'http://cddb.cddb.com/~cddb/cddb.cgi'
 
 def query(track_info, server_url=default_server,
 	  user=default_user, host=hostname):
-    
-    track_info = urllib.quote_plus(track_info)
-    
+
+    disc_id = track_info[0]
+    num_tracks = track_info[1]
+
+    query_str = (('%08lx %d ') % (disc_id, num_tracks))
+
+    for i in track_info[2:]:
+	query_str = query_str + ('%d ' % i)
+	
+    query_str = urllib.quote_plus(string.rstrip(query_str))
+
     url = "%s?cmd=cddb+query+%s&hello=%s+%s+%s+%s&proto=%i" % \
-	  (server_url, track_info, user, host, name, version, proto)
+	  (server_url, query_str, user, host, name, version, proto)
     
     response = urllib.urlopen(url)
     
@@ -93,7 +100,7 @@ def parse_read_reply(comments):
     len_re = re.compile(r'#\s*Disc length:\s*(\d+)\s*seconds')
     revis_re = re.compile(r'#\s*Revision:\s*(\d+)')
     submit_re = re.compile(r'#\s*Submitted via:\s*(.+)')
-    keyword_re = re.compile(r'([^=]+)=(.+)')
+    keyword_re = re.compile(r'([^=]+)=(.*)')
 
     result = {}
 
