@@ -8,7 +8,7 @@ from distutils.core import setup
 
 setup (# Distribution meta-data
        name = "CDDB",
-       version = "1.0",
+       version = "1.1",
        description = "Module for retrieving track information about audio CDs from CDDB",
        author = "Ben Gertzfield",
        author_email = "che@debian.org",

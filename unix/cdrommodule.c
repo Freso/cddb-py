@@ -1,3 +1,22 @@
+/* 
+ * cdrommodule.c 
+ * Python extension module for reading in audio CD-ROM data
+ *
+ * Please port me to other OSes besides Linux, Solaris, and FreeBSD! 
+ * See the README for info.
+ *
+ * Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
+ * This work is released under the GNU GPL, version 2 or later.
+ *
+ * FreeBSD support by Michael Yoon <michael@yoon.org>
+ *
+ * Thanks to Viktor Fougstedt <viktor@dtek.chalmers.se> for info
+ * on the <sys/cdio.h> include file to make this work on Solaris!
+ *
+ * Release version 1.1
+ * CVS ID: $Id$
+ */
+
 #include "Python.h"
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -42,24 +61,6 @@
 #define CDDB_CDROM_LEADOUT CDROM_LEADOUT
 #endif /* __FreeBSD__ */
 
-/* 
- * cdrommodule.c 
- * Python extension module for reading in audio CD-ROM data
- *
- * Please port me to other OSes besides Linux, Solaris, and FreeBSD! 
- * See the README for info.
- *
- * Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
- * This work is released under the GNU GPL, version 2 or later.
- *
- * FreeBSD support by Michael Yoon <michael@yoon.org>
- *
- * Thanks to Viktor Fougstedt <viktor@dtek.chalmers.se> for info
- * on the <sys/cdio.h> include file to make this work on Solaris!
- *
- * Release version 1.0
- * CVS ID: $Id$
- */
 
 static PyObject *cdrom_error;
 
