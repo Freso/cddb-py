@@ -1,4 +1,4 @@
-README for CDDB.py and DiscID.py, version 1.1
+README for CDDB.py and DiscID.py, version 1.2
 
 Copyright (C) 1999, 2000 Ben Gertzfield <che@debian.org>
 --------------------------------------------------------
@@ -9,12 +9,12 @@ fetch information on audio CDs from CDDB (http://www.cddb.com/) -- a
 very large online database of track listings and other information on
 audio CDs.
 
-To build on Linux, FreeBSD, or Solaris:
+To build on Linux, FreeBSD, OpenBSD, or Solaris:
 
 % make -f Makefile.pre.in boot
 % make
 
-Then copy CDDB.py, DiscID,py, and unix/cdrommodule.so to your local
+Then copy CDDB.py, DiscID,py, and cdrommodule.so to your local
 Python packages directory (usually /usr/lib/python1.5/site-packages).
 
 Alternatively, you can use install Distutils (to be included in Python
@@ -189,7 +189,7 @@ cdrommodule.so
   
   This is the platform-specific part of the trio. I have included
   unix/cdrommodule.c, which implements the necessary functions under
-  Linux, FreeBSD, and Solaris, but the interface is intended to be
+  Linux, FreeBSD, OpenBSD, and Solaris, but the interface is intended to be
   easy enough to implement on any platform.
 
   If you want to write your own cdrommodule.so for your platform,
@@ -231,6 +231,9 @@ cdrommodule.so
 
   Also, thanks to Frank David <F.David@digitecgmbh.de> for the win32
   port!
+
+  And thanks to Alexander S . Guy <a7r@andern.org> for the OpenBSD
+  patch.
 
   Note that I throw the exception 'cdrom.error' upon an error;
   you should stick to throwing that if your ioctls (or whatever

@@ -5,13 +5,13 @@
 # Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
 # This work is released under the GNU GPL, version 2 or later.
 
-# Release version 1.1
+# Release version 1.2
 # CVS ID: $Id$
 
 import urllib, string, socket, os, fcntl, struct, re
 
 name = 'CDDB.py'
-version = 1.1
+version = 1.2
 
 if os.environ.has_key('EMAIL'):
     (default_user, hostname) = string.split(os.environ['EMAIL'], '@')

@@ -1,3 +1,12 @@
+v1.2
+----
+
+OpenBSD support by "Alexander S . Guy" <a7r@andern.org>. Thanks!
+
+Hopefully now that Python 1.6 has been released, distutils will
+start to be used. I haven't tested this version under 1.6 yet,
+but I assume it will still work.
+
 v1.1
 ----
 

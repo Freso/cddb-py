@@ -2,18 +2,21 @@
  * cdrommodule.c 
  * Python extension module for reading in audio CD-ROM data
  *
- * Please port me to other OSes besides Linux, Solaris, and FreeBSD! 
+ * Please port me to other OSes besides Linux, Solaris, OpenBSD,
+ * and FreeBSD! 
+ *
  * See the README for info.
  *
  * Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
  * This work is released under the GNU GPL, version 2 or later.
  *
  * FreeBSD support by Michael Yoon <michael@yoon.org>
+ * OpenBSD support added by Alexander Guy <alex@andern.org>
  *
  * Thanks to Viktor Fougstedt <viktor@dtek.chalmers.se> for info
  * on the <sys/cdio.h> include file to make this work on Solaris!
  *
- * Release version 1.1
+ * Release version 1.2
  * CVS ID: $Id$
  */
 
@@ -25,7 +28,7 @@
 #include <linux/cdrom.h>
 #endif
 
-#if sun || __FreeBSD__
+#if defined(sun) || defined(__FreeBSD__) || defined(__OpenBSD__)
 #include <sys/cdio.h>
 #endif
 
@@ -36,6 +39,7 @@
  */
 
 #ifdef __FreeBSD__
+
 #define CDDB_TOC_HEADER_STRUCT ioc_toc_header 
 #define CDDB_STARTING_TRACK_FIELD starting_track 
 #define CDDB_ENDING_TRACK_FIELD ending_track
@@ -47,7 +51,23 @@
 #define CDDB_ADDR_FIELD entry.addr 
 #define CDDB_READ_TOC_ENTRY_FLAG CDIOREADTOCENTRY 
 #define CDDB_CDROM_LEADOUT 0xaa 
+
+#elif defined(__OpenBSD__)
+
+#define CDDB_TOC_HEADER_STRUCT ioc_toc_header 
+#define CDDB_STARTING_TRACK_FIELD starting_track 
+#define CDDB_ENDING_TRACK_FIELD ending_track
+#define CDDB_READ_TOC_HEADER_FLAG CDIOREADTOCHEADER 
+#define CDDB_TOC_ENTRY_STRUCT ioc_read_toc_entry 
+#define CDDB_TRACK_FIELD starting_track 
+#define CDDB_FORMAT_FIELD address_format 
+#define CDDB_MSF_FORMAT CD_MSF_FORMAT  
+#define CDDB_ADDR_FIELD data->addr 
+#define CDDB_READ_TOC_ENTRY_FLAG CDIOREADTOCENTRIES
+#define CDDB_CDROM_LEADOUT 0xaa 
+
 #else /* Linux and Solaris */
+
 #define CDDB_TOC_HEADER_STRUCT cdrom_tochdr 
 #define CDDB_STARTING_TRACK_FIELD cdth_trk0 
 #define CDDB_ENDING_TRACK_FIELD cdth_trk1 
@@ -59,8 +79,8 @@
 #define CDDB_ADDR_FIELD cdte_addr 
 #define CDDB_READ_TOC_ENTRY_FLAG CDROMREADTOCENTRY 
 #define CDDB_CDROM_LEADOUT CDROM_LEADOUT
-#endif /* __FreeBSD__ */
 
+#endif /* __FreeBSD__ */
 
 static PyObject *cdrom_error;
 
@@ -91,6 +111,10 @@ static PyObject *cdrom_toc_entry(PyObject *self, PyObject *args)
     int cdrom_fd;
     unsigned char track;
 
+#if defined(__OpenBSD__)
+    struct cd_toc_entry data;
+#endif
+
     if (!PyArg_ParseTuple(args, "O!b", &PyFile_Type, &cdrom_fileobj, &track))
 	return  NULL;
 
@@ -98,6 +122,11 @@ static PyObject *cdrom_toc_entry(PyObject *self, PyObject *args)
 
     entry.CDDB_TRACK_FIELD = track;
     entry.CDDB_FORMAT_FIELD = CDDB_MSF_FORMAT;
+
+#if defined(__OpenBSD__)
+    entry.data = &data;
+    entry.data_len = sizeof(data);
+#endif
 
     if (ioctl(cdrom_fd, CDDB_READ_TOC_ENTRY_FLAG, &entry) < 0) {
 	PyErr_SetFromErrno(cdrom_error);
@@ -115,6 +144,10 @@ static PyObject *cdrom_leadout(PyObject *self, PyObject *args)
     PyObject *cdrom_fileobj;
     int cdrom_fd;
 
+#if defined(__OpenBSD__)
+    struct cd_toc_entry data;
+#endif
+
     if (!PyArg_ParseTuple(args, "O!", &PyFile_Type, &cdrom_fileobj))
 	return  NULL;
 
@@ -122,6 +155,11 @@ static PyObject *cdrom_leadout(PyObject *self, PyObject *args)
 
     entry.CDDB_TRACK_FIELD = CDDB_CDROM_LEADOUT;
     entry.CDDB_FORMAT_FIELD = CDDB_MSF_FORMAT;
+
+#if defined(__OpenBSD__)
+    entry.data = &data;
+    entry.data_len = sizeof(data);
+#endif
 
     if (ioctl(cdrom_fd, CDDB_READ_TOC_ENTRY_FLAG, &entry) < 0) {
 	PyErr_SetFromErrno(cdrom_error);
