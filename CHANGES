@@ -1,0 +1,15 @@
+v1.0
+----
+
+First full 1.0 release. Fixed several bugs related to multiple
+match returns from CDDB in CDDB.py and cddb-info.py.
+
+cdrom module now supports FreeBSD, Linux, Solaris, and Win32.
+
+Provide setup.py for when distutils starts being used.
+
+v0.5
+----
+
+Initial release. Most functionality is there. cdrom module only
+provided for Linux.
