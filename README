@@ -71,7 +71,7 @@ any other data relevant to the specified audio CD.
 
 There are two methods of the CDDB module that are of interest:
 
-(status, info) = CDDB.query(disc_id)
+(status, info) = CDDB.query(disc_id, [server_url], [user], [host])
 
   Given a disc_id, as returned from DiscID.disc_id() above,
   return a tuple of two items. The first item returned is an integer
@@ -100,8 +100,26 @@ There are two methods of the CDDB module that are of interest:
   exactly the same as a single 200 success return.
 
   On any other status, None will be returned as the second item.
+ 
+  By default, the server http://cddb.cddb.com/~cddb/cddb.cgi will
+  be used. You can specify a different server URL as the second
+  argument to CDDB.query().
 
-(status, info) = CDDB.read(category, disc_id)
+  The optional user and host arguments are sent in the 'hello'
+  portion of the CDDB query. They should correspond to the
+  user's email address (if you believe in the CDDB docs, that
+  is -- it may not be nice to send the user's email address 
+  without asking them!)
+
+  By default, if the EMAIL environment variable is set, user
+  and host will be set by parsing $EMAIL into user@host.
+
+  Otherwise, user will default to os.geteuid(), falling back
+  to os.environ['USER'], then just plain 'user', and host
+  will default to socket.gethostname() or just plain 'host' if
+  that fails.
+
+(status, info) = CDDB.read(category, disc_id, [server_url], [user], [host])
 
   Given a category and a disc ID checksum as returned from
   CDDB.query(), return a tuple of two items. The first item returned
@@ -147,6 +165,9 @@ There are two methods of the CDDB module that are of interest:
   strings for most discs. Also, submitted_via and revision are
   technically in the comments returned from the server, so may or
   may not even be there. Test first!
+
+  As with CDDB.query(), server_url, user, and host are all optional.
+  See above for the defaults.
 
 cdrommodule.so
 --------------
