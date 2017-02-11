@@ -51,8 +51,7 @@ def disc_id(device):
 
     return [discid, last] + track_frames[:-1] + [ track_frames[-1] / 75 ]
 
-if __name__ == '__main__':
-
+def main():
     dev_name = None
     device = None
 
@@ -70,3 +69,6 @@ if __name__ == '__main__':
 
     for i in disc_info[1:]:
         print ('%d' % i),
+
+if __name__ == '__main__':
+    main()
