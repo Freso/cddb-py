@@ -5,8 +5,6 @@
 # Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
 # This work is released under the GNU GPL, version 2 or later.
 
-# Release version 1.4
-
 import urllib, string, socket, os, struct, re
 
 name = 'CDDB.py'

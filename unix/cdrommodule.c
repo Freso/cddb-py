@@ -16,8 +16,6 @@
  *
  * Thanks to Viktor Fougstedt <viktor@dtek.chalmers.se> for info
  * on the <sys/cdio.h> include file to make this work on Solaris!
- *
- * Release version 1.4
  */
 
 #include "Python.h"
