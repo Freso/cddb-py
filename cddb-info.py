@@ -29,24 +29,24 @@ print "Querying CDDB for info on disc...",
 
 if query_stat == 200:
     print ("success!\nQuerying CDDB for track info of `%s'... " %
-	   query_info['title']),
+           query_info['title']),
 
     (read_stat, read_info) = CDDB.read(query_info['category'],
-				       query_info['disc_id'])
+                                       query_info['disc_id'])
     if read_stat == 210:
-	print "success!"
-					# Start from 0, not 1
-					# thanks to bgp for the fix!
-	for i in range(0, disc_id[1]):
-	    print "Track %.02d: %s" % (i+1, read_info['TTITLE' + `i`])
+        print "success!"
+                                        # Start from 0, not 1
+                                        # thanks to bgp for the fix!
+        for i in range(0, disc_id[1]):
+            print "Track %.02d: %s" % (i+1, read_info['TTITLE' + `i`])
     else:
-	print "failure getting track info, status: %i" % read_stat
+        print "failure getting track info, status: %i" % read_stat
 
 elif query_stat == 210 or query_stat == 211:
     print "multiple matches found! Matches are:"
     for i in query_info:
-	print "ID: %s Category: %s Title: %s" % \
-	      (i['disc_id'], i['category'], i['title'])
+        print "ID: %s Category: %s Title: %s" % \
+              (i['disc_id'], i['category'], i['title'])
 
 else:
     print "failure getting disc info, status %i" % query_stat
