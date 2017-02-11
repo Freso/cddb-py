@@ -13,7 +13,7 @@ import cdrom, sys
 
 def cddb_sum(n):
     ret = 0
-    
+
     while n > 0:
 	ret = ret + (n % 10)
 	n = n / 10
@@ -36,7 +36,7 @@ def disc_id(device):
 
     track_frames = []
     checksum = 0
-    
+
     for i in range(first, last + 1):
 	(min, sec, frame) = cdrom.toc_entry(device, i)
 	checksum = checksum + cddb_sum(min*60 + sec)
@@ -46,7 +46,7 @@ def disc_id(device):
     track_frames.append(min*60*75 + sec*75 + frame)
 
     total_time = (track_frames[-1] / 75) - (track_frames[0] / 75)
-	       
+
     discid = ((checksum % 0xff) << 24 | total_time << 8 | last)
 
     return [discid, last] + track_frames[:-1] + [ track_frames[-1] / 75 ]
@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     dev_name = None
     device = None
-    
+
     if len(sys.argv) >= 2:
 	dev_name = sys.argv[1]
 
@@ -63,7 +63,7 @@ if __name__ == '__main__':
         device = open(dev_name)
     else:
         device = open()
-        
+
     disc_info = disc_id(device)
 
     print ('%08lx' % disc_info[0]),

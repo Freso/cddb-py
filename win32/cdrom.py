@@ -20,11 +20,11 @@ def toc_entry(device, track):
    for i in result: r.append(string.atoi(i))
    return r
 
-def toc_entry_pos(device, track): 
+def toc_entry_pos(device, track):
    return toc_entry(device, track)
-   
 
-def toc_entry_len(device, track): 
+
+def toc_entry_len(device, track):
    mci.mciSendString("set %s time format msf" % device)
    mciString = "status %s length track %i" % (device, track)
    resultStr = mci.mciSendString(mciString)
@@ -38,16 +38,16 @@ def leadout(device):
    trackPosMin, trackPosSecond, trackPosFrame = toc_entry_pos(device, lastTrack)
    trackLenMin, trackLenSecond, trackLenFrame = toc_entry_len(device, lastTrack)
    # calculate raw leadout
-   leadoutMin, leadoutSecond, leadoutFrame = ( trackPosMin +  trackLenMin,  trackPosSecond  + trackLenSecond, trackPosFrame + trackLenFrame)   
+   leadoutMin, leadoutSecond, leadoutFrame = ( trackPosMin +  trackLenMin,  trackPosSecond  + trackLenSecond, trackPosFrame + trackLenFrame)
    # add windows specific correction
    leadoutFrame = leadoutFrame + leadoutFrame
    # convert to minute, second, frame
    if leadoutFrame >= 75:
       leadoutFrame  = leadoutFrame - 75;
-      leadoutSecond = leadoutSecond + 1           
+      leadoutSecond = leadoutSecond + 1
    if leadoutSecond >= 60:
       leadoutSecond  = leadoutSecond - 60;
-      leadoutMin = leadoutMin + 1           
+      leadoutMin = leadoutMin + 1
    # return leadout as tuple
    return (leadoutMin, leadoutSecond, leadoutFrame)
 

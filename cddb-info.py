@@ -28,10 +28,10 @@ print "Querying CDDB for info on disc...",
 (query_stat, query_info) = CDDB.query(disc_id)
 
 if query_stat == 200:
-    print ("success!\nQuerying CDDB for track info of `%s'... " % 
+    print ("success!\nQuerying CDDB for track info of `%s'... " %
 	   query_info['title']),
 
-    (read_stat, read_info) = CDDB.read(query_info['category'], 
+    (read_stat, read_info) = CDDB.read(query_info['category'],
 				       query_info['disc_id'])
     if read_stat == 210:
 	print "success!"
@@ -50,6 +50,3 @@ elif query_stat == 210 or query_stat == 211:
 
 else:
     print "failure getting disc info, status %i" % query_stat
-
-
-	

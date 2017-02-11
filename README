@@ -68,10 +68,10 @@ Windows.  Completely untested.
 
 -----
 
-The distribution is split up into three parts: 
+The distribution is split up into three parts:
 
 * CDDB.py, for querying the online CDDB servers.
-* cdrommodule.so, a C extension module, for actually querying the 
+* cdrommodule.so, a C extension module, for actually querying the
   CD-ROM drive for the track start times and other data.
 * DiscID.py, a wrapper around cdrommodule.so, which formats the
   track data the way the CDDB protocol requires it.
@@ -93,15 +93,15 @@ of an audio CD into the format the CDDB protocol requires.
 
 There are two methods of the DiscID module that are of interest:
 
-device = DiscID.open() 
-  
+device = DiscID.open()
+
   This is the default, cross-platform way to open the audio
   CD-ROM device.  The device defaults to /dev/cdrom on Linux and BSD,
   /dev/disk1 on Mac OS X, /dev/vol/aliases/cdrom0 on Solaris, and
   cdaudio under Windows.  You do not have to use this function to open
   the audio CD-ROM device, but it's a sane default.
- 
-  If you want to specify a different device name or flags for opening, 
+
+  If you want to specify a different device name or flags for opening,
   use the following:
 
 device = DiscID.open(devicename, flags)
@@ -172,7 +172,7 @@ There are two methods of the CDDB module that are of interest:
   exactly the same as a single 200 success return.
 
   On any other status, None will be returned as the second item.
- 
+
   By default, the server http://freedb.freedb.org/~cddb/cddb.cgi will
   be used. You can specify a different server URL as the second
   argument to CDDB.query().
@@ -185,7 +185,7 @@ There are two methods of the CDDB module that are of interest:
   The optional user and host arguments are sent in the 'hello'
   portion of the CDDB query. They should correspond to the
   user's email address (if you believe in the CDDB docs, that
-  is -- it may not be nice to send the user's email address 
+  is -- it may not be nice to send the user's email address
   without asking them!)
 
   By default, if the EMAIL environment variable is set, user
@@ -211,7 +211,7 @@ There are two methods of the CDDB module that are of interest:
   * 409: No handshake
   * 417: Access limit exceeded
 
-  Any other return value is a server or client error.  
+  Any other return value is a server or client error.
 
   The second value returned from CDDB.read() depends on the status
   returned by the server. On 210, a dictionary will be returned,
@@ -256,7 +256,7 @@ There are two methods of the CDDB module that are of interest:
 
 cdrommodule.so
 --------------
-  
+
   This is the platform-specific part of the trio. I have included
   unix/cdrommodule.c, which implements the necessary functions under
   Linux, FreeBSD, OpenBSD, Mac OS X, and Solaris, but the interface is
@@ -269,14 +269,14 @@ cdrommodule.so
     If given no arguments, perform the proper platform-specific
     steps to open the default CDROM audio device and return an opened
     Python file object corresponding to it.
- 
+
     If called with one argument, override the default CDROM audio
     device with this argument.  If called with two arguments, open
     the device with the specified flags (integer on *nix, string on
     Windows.)
- 
+
     On Windows, which does not use an opened file object to represent
-    the CDROM audio device, returning a string describing the device 
+    the CDROM audio device, returning a string describing the device
     is acceptable, as the other functions will just use that instead
     of the opened file.
 
@@ -295,7 +295,7 @@ cdrommodule.so
     Given an open file object, return a tuple of three integer values,
     (minute, second, frame). These correspond to the start time of
     the special 'leadout' track, generally track 0xAA, as given in
-    MSF form. 
+    MSF form.
 
     If your platform (i.e. Windows) cannot return this leadout
     track's time directly, you'll need to calculate it by taking the

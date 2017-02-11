@@ -99,8 +99,8 @@ CFLAGS=		$(OPT) -I$(INCLUDEPY) -I$(EXECINCLUDEPY) $(DEFS)
 
 # These two variables can be set in Setup to merge extensions.
 # See example[23].
-BASELIB=	
-BASESETUP=	
+BASELIB=
+BASESETUP=
 
 # === Variables set by makesetup ===
 
@@ -209,7 +209,7 @@ install:	sharedmods
 lib.a:		$(MODOBJS)
 		-rm -f lib.a
 		ar cr lib.a $(MODOBJS)
-		-$(RANLIB) lib.a 
+		-$(RANLIB) lib.a
 
 # This runs makesetup *twice* to use the BASESETUP definition from Setup
 config.c Makefile:	Makefile.pre Setup $(BASESETUP) $(MAKESETUP)

@@ -31,7 +31,7 @@ def query(track_info, server_url=default_server,
 
     for i in track_info[2:]:
 	query_str = query_str + ('%d ' % i)
-	
+
     query_str = urllib.quote_plus(string.rstrip(query_str))
 
     url = "%s?cmd=cddb+query+%s&hello=%s+%s+%s+%s&proto=%i" % \
@@ -39,7 +39,7 @@ def query(track_info, server_url=default_server,
            client_version, proto)
 
     response = urllib.urlopen(url)
-    
+
     # Four elements in header: status, category, disc-id, title
     header = string.split(string.rstrip(response.readline()), ' ', 3)
 
@@ -72,7 +72,7 @@ def query(track_info, server_url=default_server,
     else:
 	return [ header[0], None ]
 
-def read(category, disc_id, server_url=default_server, 
+def read(category, disc_id, server_url=default_server,
 	 user=default_user, host=hostname, client_name=name,
          client_version=version):
 
@@ -81,7 +81,7 @@ def read(category, disc_id, server_url=default_server,
            client_version, proto)
 
     response = urllib.urlopen(url)
-    
+
     header = string.split(string.rstrip(response.readline()), ' ', 3)
 
     header[0] = string.atoi(header[0])
@@ -108,7 +108,7 @@ def read(category, disc_id, server_url=default_server,
 	return [ header[0], None ]
 
 def parse_read_reply(comments):
-    
+
     len_re = re.compile(r'#\s*Disc length:\s*(\d+)\s*seconds')
     revis_re = re.compile(r'#\s*Revision:\s*(\d+)')
     submit_re = re.compile(r'#\s*Submitted via:\s*(.+)')

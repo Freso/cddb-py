@@ -43,4 +43,3 @@ void initmci(void)
     mci_error = PyErr_NewException("mci.error", NULL, NULL);
     PyDict_SetItemString(dict, "error", mci_error);
 }
-
