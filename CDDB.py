@@ -6,7 +6,6 @@
 # This work is released under the GNU GPL, version 2 or later.
 
 # Release version 1.4
-# CVS ID: $Id$
 
 import urllib, string, socket, os, struct, re
 

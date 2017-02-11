@@ -2,8 +2,6 @@
 
 """Setup script for the CDDB module distribution under Win32."""
 
-__revision__ = "$Id$"
-
 from distutils.core import setup, Extension
 
 setup (# Distribution meta-data
