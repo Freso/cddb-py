@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+"""
+Example of how to use CDDB.py and DiscID.py
 
-# Example of how to use CDDB.py and DiscID.py
-
-# Written 17 Nov 1999 by Ben Gertzfield <che@debian.org
-# This work is released under the GNU GPL, version 2 or later.
+Written 17 Nov 1999 by Ben Gertzfield <che@debian.org
+This work is released under the GNU GPL, version 2 or later.
+"""
 
 import DiscID
 import CDDB

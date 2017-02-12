@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+"""
+Supporting Ben Gertzfield's <che@debian.org> cdrom-Interface using mciSendString on WIN32
+Frank David <F.David@digitecgmbh.de>
 
-# Supporting Ben Gertzfield's <che@debian.org> cdrom-Interface using mciSendString on WIN32
-# Frank David <F.David@digitecgmbh.de>
-
-# This work is released under the GNU GPL, version 2 or later.
+This work is released under the GNU GPL, version 2 or later.
+"""
 
 import mci
 import string

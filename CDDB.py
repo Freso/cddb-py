@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+"""
+Module for retrieving CDDB v1 data from CDDB servers via HTTP
 
-# Module for retrieving CDDB v1 data from CDDB servers via HTTP
-
-# Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
-# This work is released under the GNU GPL, version 2 or later.
+Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
+This work is released under the GNU GPL, version 2 or later.
+"""
 
 import urllib
 import string

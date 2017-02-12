@@ -1,13 +1,14 @@
 #!/usr/bin/env python
+"""
+Module for fetching information about an audio compact disc and
+returning it in a format friendly to CDDB.
 
-# Module for fetching information about an audio compact disc and
-# returning it in a format friendly to CDDB.
+If called from the command line, will print out disc info in a
+format identical to Robert Woodcock's 'cd-discid' program.
 
-# If called from the command line, will print out disc info in a
-# format identical to Robert Woodcock's 'cd-discid' program.
-
-# Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
-# This work is released under the GNU GPL, version 2 or later.
+Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
+This work is released under the GNU GPL, version 2 or later.
+"""
 
 import cdrom
 import sys
@@ -24,9 +25,11 @@ def cddb_sum(n):
 
 
 def open(device=None, flags=None):
-    # Allow this function to be called with no arguments,
-    # specifying that we should call cdrom.open() with
-    # no arguments.
+    """
+    Allow this function to be called with no arguments,
+    specifying that we should call cdrom.open() with
+    no arguments.
+    """
     if device is None:
         return cdrom.open()
     elif flags is None:
