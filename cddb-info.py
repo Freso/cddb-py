@@ -5,7 +5,11 @@
 # Written 17 Nov 1999 by Ben Gertzfield <che@debian.org
 # This work is released under the GNU GPL, version 2 or later.
 
-import DiscID, CDDB, sys, os
+import DiscID
+import CDDB
+import sys
+import os
+
 
 def main():
     dev = None
@@ -36,10 +40,10 @@ def main():
                                            query_info['disc_id'])
         if read_stat == 210:
             print "success!"
-                                            # Start from 0, not 1
-                                            # thanks to bgp for the fix!
+            # Start from 0, not 1
+            # thanks to bgp for the fix!
             for i in range(0, disc_id[1]):
-                print "Track %.02d: %s" % (i+1, read_info['TTITLE' + `i`])
+                print "Track %.02d: %s" % (i + 1, read_info['TTITLE' + repr(i)])
         else:
             print "failure getting track info, status: %i" % read_stat
 
