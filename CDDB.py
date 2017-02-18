@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 """
 Module for retrieving CDDB v1 data from CDDB servers via HTTP
 

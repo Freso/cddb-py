@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 """
 Example of how to use CDDB.py and DiscID.py
 

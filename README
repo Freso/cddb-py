@@ -30,7 +30,7 @@ string to anything you wish for accessing their servers.
 If you are using Python 1.6 or 2.0 or later on Linux, FreeBSD,
 OpenBSD, Mac OS X, or Solaris, installing is simple.  As root, run:
 
-# python setup.py install
+# python2 setup.py install
 
 (This also works if you have installed Distutils on an older
 Python. See http://www.python.org/sigs/distutils-sig/download.html for

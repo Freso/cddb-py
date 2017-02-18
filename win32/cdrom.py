@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 """
 Supporting Ben Gertzfield's <che@debian.org> cdrom-Interface using mciSendString on WIN32
 Frank David <F.David@digitecgmbh.de>
