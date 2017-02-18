@@ -89,10 +89,10 @@ VPATH=		.
 # === Variables that you may want to customize (rarely) ===
 
 # (Static) build target
-TARGET=		python2
+TARGET=		python3
 
 # Installed python binary (used only by boot target)
-PYTHON=		python2
+PYTHON=		python3
 
 # Add more -I and -D options here
 CFLAGS=		$(OPT) -I$(INCLUDEPY) -I$(EXECINCLUDEPY) $(DEFS)

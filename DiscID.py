@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 """
 Module for fetching information about an audio compact disc and
 returning it in a format friendly to CDDB.

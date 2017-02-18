@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 """
 Module for retrieving CDDB v1 data from CDDB servers via HTTP
 
@@ -6,7 +6,7 @@ Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
 This work is released under the GNU GPL, version 2 or later.
 """
 
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import string
 import socket
 import os
@@ -39,13 +39,13 @@ def query(track_info, server_url=default_server,
     for i in track_info[2:]:
         query_str = query_str + ('%d ' % i)
 
-    query_str = urllib.quote_plus(string.rstrip(query_str))
+    query_str = urllib.parse.quote_plus(string.rstrip(query_str))
 
     url = "%s?cmd=cddb+query+%s&hello=%s+%s+%s+%s&proto=%i" % \
           (server_url, query_str, user, host, client_name,
            client_version, proto)
 
-    response = urllib.urlopen(url)
+    response = urllib.request.urlopen(url)
 
     # Four elements in header: status, category, disc-id, title
     header = string.split(string.rstrip(response.readline()), ' ', 3)
@@ -88,7 +88,7 @@ def read(category, disc_id, server_url=default_server,
           (server_url, category, disc_id, user, host, client_name,
            client_version, proto)
 
-    response = urllib.urlopen(url)
+    response = urllib.request.urlopen(url)
 
     header = string.split(string.rstrip(response.readline()), ' ', 3)
 
