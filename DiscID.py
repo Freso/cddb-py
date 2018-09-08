@@ -10,8 +10,10 @@ Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
 This work is released under the GNU GPL, version 2 or later.
 """
 
-import cdrom
+# Standard libraries.
 import sys
+
+import cdrom
 
 
 def cddb_sum(n):
@@ -19,7 +21,7 @@ def cddb_sum(n):
 
     while n > 0:
         ret = ret + (n % 10)
-        n = n / 10
+        n = n // 10
 
     return ret
 
@@ -52,11 +54,11 @@ def disc_id(device):
     (min, sec, frame) = cdrom.leadout(device)
     track_frames.append(min * 60 * 75 + sec * 75 + frame)
 
-    total_time = (track_frames[-1] / 75) - (track_frames[0] / 75)
+    total_time = (track_frames[-1] // 75) - (track_frames[0] // 75)
 
     discid = ((checksum % 0xff) << 24 | total_time << 8 | last)
 
-    return [discid, last] + track_frames[:-1] + [track_frames[-1] / 75]
+    return [discid, last] + track_frames[:-1] + [track_frames[-1] // 75]
 
 
 def main():
@@ -73,10 +75,11 @@ def main():
 
     disc_info = disc_id(device)
 
-    print ('%08lx' % disc_info[0]),
+    print('%08lx' % disc_info[0]),
 
     for i in disc_info[1:]:
-        print ('%d' % i),
+        print('%d' % i),
+
 
 if __name__ == '__main__':
     main()
