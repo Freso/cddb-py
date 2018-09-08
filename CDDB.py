@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 """
 Module for retrieving CDDB v1 data from CDDB servers via HTTP
-
 Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
 This work is released under the GNU GPL, version 2 or later.
 """
-
 # Standard libraries.
 import os
 import re
@@ -28,7 +26,11 @@ default_server = 'http://freedb.freedb.org/~cddb/cddb.cgi'
 
 def decode_response(response):
     """Try to detect the correct decoding for response."""
-    return response.readline().decode().rstrip().split(' ', 3)
+    try:
+        return response.decode()
+    except UnicodeDecodeError:
+        return response.decode('ISO-8859-1')
+
 
 def query(track_info, server_url=default_server,
           user=default_user, host=hostname, client_name=name,
@@ -51,7 +53,7 @@ def query(track_info, server_url=default_server,
     response = urllib.urlopen(url)
 
     # Four elements in header: status, category, disc-id, title
-    header = response.readline().decode('latin-1').rstrip().split(' ', 3)
+    header = decode_response(response.readline()).rstrip().split(' ', 3)
 
     header[0] = int(header[0])
 
@@ -93,14 +95,14 @@ def read(category, disc_id, server_url=default_server,
 
     response = urllib.urlopen(url)
 
-    header = response.readline().decode('ISO-8859-1').rstrip().split(' ', 3)
+    header = decode_response(response.readline()).rstrip().split(' ', 3)
 
     header[0] = int(header[0])
     if header[0] == 210 or header[0] == 417:  # success or access denied
         reply = []
 
         for line in response.readlines():
-            line = line.rstrip().decode('latin-1')
+            line = decode_response(line).rstrip()
 
             if line == '.':
                 break
