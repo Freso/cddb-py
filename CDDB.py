@@ -9,9 +9,8 @@ import os
 import re
 import socket
 import urllib
-
 name = 'CDDB.py'
-version = 1.4
+version = 1.5
 
 if 'EMAIL' in os.environ:
     (default_user, hostname) = os.environ['EMAIL'].split('@')
