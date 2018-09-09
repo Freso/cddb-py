@@ -66,7 +66,7 @@ def query(track_info, server_url=default_server,
         result = []
 
         for line in response.readlines():
-            line = line.rstrip()
+            line = decode_response(line).rstrip()
 
             if line == '.':             # end of matches
                 break
