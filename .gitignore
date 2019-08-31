@@ -1,2 +1,4 @@
 *.pyc
 /build/*
+/CDDB.egg-info/*
+/venv/*
