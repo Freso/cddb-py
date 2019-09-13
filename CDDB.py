@@ -1,23 +1,19 @@
 #!/usr/bin/env python3
 """
 Module for retrieving CDDB v1 data from CDDB servers via HTTP
-
 Written 17 Nov 1999 by Ben Gertzfield <che@debian.org>
 This work is released under the GNU GPL, version 2 or later.
 """
-
-import urllib.request, urllib.parse, urllib.error
-import string
-import socket
+# Standard libraries.
 import os
-import struct
 import re
-
+import socket
+import urllib
 name = 'CDDB.py'
-version = 1.4
+version = 1.5
 
 if 'EMAIL' in os.environ:
-    (default_user, hostname) = string.split(os.environ['EMAIL'], '@')
+    (default_user, hostname) = os.environ['EMAIL'].split('@')
 else:
     default_user = os.geteuid() or os.environ['USER'] or 'user'
     hostname = socket.gethostname() or 'host'
@@ -25,6 +21,14 @@ else:
 # Use protocol version 5 to get DYEAR and DGENRE fields.
 proto = 5
 default_server = 'http://freedb.freedb.org/~cddb/cddb.cgi'
+
+
+def decode_response(response):
+    """Try to detect the correct decoding for response."""
+    try:
+        return response.decode()
+    except UnicodeDecodeError:
+        return response.decode('ISO-8859-1')
 
 
 def query(track_info, server_url=default_server,
@@ -39,18 +43,18 @@ def query(track_info, server_url=default_server,
     for i in track_info[2:]:
         query_str = query_str + ('%d ' % i)
 
-    query_str = urllib.parse.quote_plus(string.rstrip(query_str))
+    query_str = urllib.quote_plus(query_str.rstrip())
 
     url = "%s?cmd=cddb+query+%s&hello=%s+%s+%s+%s&proto=%i" % \
           (server_url, query_str, user, host, client_name,
            client_version, proto)
 
-    response = urllib.request.urlopen(url)
+    response = urllib.urlopen(url)
 
     # Four elements in header: status, category, disc-id, title
-    header = string.split(string.rstrip(response.readline()), ' ', 3)
+    header = decode_response(response.readline()).rstrip().split(' ', 3)
 
-    header[0] = string.atoi(header[0])
+    header[0] = int(header[0])
 
     if header[0] == 200:                # OK
         result = {'category': header[1], 'disc_id': header[2], 'title':
@@ -62,14 +66,14 @@ def query(track_info, server_url=default_server,
         result = []
 
         for line in response.readlines():
-            line = string.rstrip(line)
+            line = decode_response(line).rstrip()
 
             if line == '.':             # end of matches
                 break
                 # otherwise:
                 # split into 3 pieces, not 4
                 # (thanks to bgp for the fix!)
-            match = string.split(line, ' ', 2)
+            match = line.split(' ', 2)
 
             result.append({'category': match[0], 'disc_id': match[1], 'title':
                            match[2]})
@@ -88,23 +92,23 @@ def read(category, disc_id, server_url=default_server,
           (server_url, category, disc_id, user, host, client_name,
            client_version, proto)
 
-    response = urllib.request.urlopen(url)
+    response = urllib.urlopen(url)
 
-    header = string.split(string.rstrip(response.readline()), ' ', 3)
+    header = decode_response(response.readline()).rstrip().split(' ', 3)
 
-    header[0] = string.atoi(header[0])
+    header[0] = int(header[0])
     if header[0] == 210 or header[0] == 417:  # success or access denied
         reply = []
 
         for line in response.readlines():
-            line = string.rstrip(line)
+            line = decode_response(line).rstrip()
 
             if line == '.':
                 break
 
-            line = string.replace(line, r'\t', "\t")
-            line = string.replace(line, r'\n', "\n")
-            line = string.replace(line, r'\\', "\\")
+            line = line.replace(r'\t', "\t")
+            line = line.replace(r'\n', "\n")
+            line = line.replace(r'\\', "\\")
 
             reply.append(line)
 

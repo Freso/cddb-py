@@ -1,4 +1,4 @@
-README for CDDB.py and DiscID.py, version 1.4
+README for CDDB.py and DiscID.py, version 1.5
 
 Copyright (C) 1999-2003 Ben Gertzfield <che@debian.org>
 -------------------------------------------------------
@@ -27,25 +27,14 @@ string to anything you wish for accessing their servers.
 
 -----
 
-If you are using Python 1.6 or 2.0 or later on Linux, FreeBSD,
+If you are using Python 1.6, or 2.0 or later on Linux, FreeBSD,
 OpenBSD, Mac OS X, or Solaris, installing is simple.  As root, run:
 
-# python3 setup.py install
+# python[2,3] setup.py install
 
 (This also works if you have installed Distutils on an older
 Python. See http://www.python.org/sigs/distutils-sig/download.html for
 more information.)
-
------
-
-If you have an older version of Python installed on Linux, FreeBSD,
-OpenBSD, Mac OS X, or Solaris:
-
-% make -f Makefile.pre.in boot
-% make
-
-Then copy CDDB.py, DiscID,py, and cdrommodule.so to your local
-Python packages directory (usually /usr/lib/python1.5/site-packages).
 
 -----
 
@@ -54,7 +43,7 @@ following files to your C:\Python20\Lib\ directory:
 
 CDDB.py DiscID.py win32\cdrom.py win32\mci.dll
 
-Older revisions of Python will require a by-hand recompile of
+Other revisions of Python will require a by-hand recompile of
 win32\mci.c; win32\mci.dsp has been provided for Visual C++ users.
 
 I do not have access to a Windows compiler, so I cannot support the
@@ -62,9 +51,8 @@ module very well.  However, I have tested that it works on Windows
 2000 with Python 2.0.  Thanks to Mike Roberts <zoarre@yahoo.com> for
 recompiling the mci.dll library for Python 2.0!
 
-There is an experimental setup-win32.py Distutils, which (in theory)
-works the same as the *nix method (python setup-win32.py install) on
-Windows.  Completely untested.
+setup.py should work with Windows as well as UNIX flavours, including
+Linux, given that the appropriate C Compiler is installed.
 
 -----
 

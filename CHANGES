@@ -1,3 +1,8 @@
+v1.5
+----
+
+Added support fpr python 3.6, dropped support for python <1.6.
+
 v1.4
 ----
 

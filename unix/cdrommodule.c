@@ -36,6 +36,17 @@
 #include <IOKit/storage/IOCDMediaBSDClient.h>
 #endif
 
+struct module_state {
+    PyObject *error;
+};
+
+#if PY_MAJOR_VERSION >= 3
+#define GETSTATE(m) ((struct module_state*)PyModule_GetState(m))
+#else
+#define GETSTATE(m) (&_state)
+static struct module_state _state;
+#endif
+
 /*
  * Since FreeBSD has identical support but different names for lots
  * of these structs and constants, we'll just #define CDDB_WHATEVER
@@ -119,10 +130,18 @@ static PyObject *cdrom_toc_header(PyObject *self, PyObject *args)
     PyObject *cdrom_fileobj;
     int cdrom_fd;
 
+#if PY_MAJOR_VERSION >= 3
+    if (!PyArg_ParseTuple(args, "O", &cdrom_fileobj))
+        return NULL;
+    cdrom_fd = PyObject_AsFileDescriptor(cdrom_fileobj);
+    if (cdrom_fd < 0)
+        return NULL;
+#else 
     if (!PyArg_ParseTuple(args, "O!", &PyFile_Type, &cdrom_fileobj))
 	return NULL;
-
     cdrom_fd = fileno(PyFile_AsFile(cdrom_fileobj));
+#endif
+    
 
 #if defined(__APPLE__)
     memset(&discInfoParams, 0, sizeof(discInfoParams));
@@ -155,11 +174,19 @@ static PyObject *cdrom_toc_entry(PyObject *self, PyObject *args)
     CDMSF trackMSF;
 #endif
 
+#if PY_MAJOR_VERSION >= 3
+    if (!PyArg_ParseTuple(args, "Ob", &cdrom_fileobj, &track))
+        return NULL;
+    cdrom_fd = PyObject_AsFileDescriptor(cdrom_fileobj);
+    if (cdrom_fd < 0)
+        return NULL;
+#else 
     if (!PyArg_ParseTuple(args, "O!b", &PyFile_Type, &cdrom_fileobj, &track))
 	return  NULL;
 
     cdrom_fd = fileno(PyFile_AsFile(cdrom_fileobj));
-
+#endif
+    
 #if defined(__APPLE__)
     memset( &trackInfoParams, 0, sizeof(trackInfoParams));
     trackInfoParams.addressType = kCDTrackInfoAddressTypeTrackNumber;
@@ -212,11 +239,19 @@ static PyObject *cdrom_leadout(PyObject *self, PyObject *args)
     CDMSF trackMSF;
 #endif
 
+#if PY_MAJOR_VERSION >= 3
+    if (!PyArg_ParseTuple(args, "O", &cdrom_fileobj))
+        return NULL;
+    cdrom_fd = PyObject_AsFileDescriptor(cdrom_fileobj);
+    if (cdrom_fd < 0)
+        return NULL;
+#else 
     if (!PyArg_ParseTuple(args, "O!", &PyFile_Type, &cdrom_fileobj))
 	return  NULL;
 
     cdrom_fd = fileno(PyFile_AsFile(cdrom_fileobj));
-
+#endif
+    
 #if defined(__APPLE__)
     memset(&discInfoParams, 0, sizeof(discInfoParams));
     discInfoParams.buffer = &hdr;
@@ -294,8 +329,11 @@ static PyObject* cdrom_open(PyObject *self, PyObject *args)
 	return NULL;
     }
 
+#if PY_MAJOR_VERSION >= 3
+    cdrom_file_object = PyFile_FromFd(cdrom_fd, cdrom_device, "r", -1, NULL, NULL, NULL, 1);
+#else
     cdrom_file_object = PyFile_FromFile(cdrom_file, cdrom_device, "r", cdrom_close);
-
+#endif
     if (cdrom_file_object == NULL) {
 	PyErr_SetString(cdrom_error, "Internal conversion from file pointer to Python object failed");
 	fclose(cdrom_file);
@@ -313,12 +351,57 @@ static PyMethodDef cdrom_methods[] = {
     { NULL, NULL }
 };
 
+#if PY_MAJOR_VERSION >= 3
+
+static int cdrom_traverse(PyObject *m, visitproc visit, void *arg) {
+    Py_VISIT(GETSTATE(m)->error);
+    return 0;
+}
+
+static int cdrom_clear(PyObject *m) {
+    Py_CLEAR(GETSTATE(m)->error);
+    return 0;
+}
+
+
+static struct PyModuleDef moduledef = {
+        PyModuleDef_HEAD_INIT,
+        "cdrom",
+        NULL,
+        sizeof(struct module_state),
+        cdrom_methods,
+        NULL,
+        cdrom_traverse,
+        cdrom_clear,
+        NULL
+};
+
+#define INITERROR return NULL
+
+PyMODINIT_FUNC
+PyInit_cdrom(void)
+
+#else
+#define INITERROR return
 void initcdrom(void)
+#endif
 {
     PyObject *module, *dict;
 
+#if PY_MAJOR_VERSION >= 3
+    module = PyModule_Create(&moduledef);
+#else
     module = Py_InitModule("cdrom", cdrom_methods);
+#endif
+
+    if (module == NULL)
+        INITERROR;
+    
     dict = PyModule_GetDict(module);
     cdrom_error = PyErr_NewException("cdrom.error", NULL, NULL);
     PyDict_SetItemString(dict, "error", cdrom_error);
+
+#if PY_MAJOR_VERSION >= 3
+    return module;
+#endif
 }
